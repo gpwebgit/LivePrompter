@@ -139,6 +139,8 @@ Verifica nel terminale: `docker --version`
 
 **Cos'è**: l'editor dove vedrai e modificherai il codice. È gratuito ed è lo standard usato dalla maggior parte dei developer.
 
+> **Vuoi usare Cursor invece di VS Code?** Cursor è un editor alternativo (basato su VS Code) che include il proprio agente AI integrato. Se hai già deciso di usare Cursor: **non installare VS Code** — scarica Cursor da [cursor.com](https://cursor.com) e continua a usarlo come editor per il resto delle istruzioni (clona il progetto, apri il terminale integrato, ecc. funzionano allo stesso modo). Salta anche il passaggio 8 (Claude Code CLI) e vedi [Alternative all'agente AI](#alternative-allagente-ai). Non installare entrambi.
+
 1. Vai su [code.visualstudio.com](https://code.visualstudio.com/)
 2. Scarica, apri il `.dmg`, trascina nella cartella Applicazioni
 3. Apri VS Code
@@ -149,7 +151,7 @@ Verifica nel terminale: `docker --version`
 5. Cerca **"Claude Code"** nella barra di ricerca
 6. Clicca **Install** sull'estensione di Anthropic
 
-> Preferisci Codex o Cursor? Salta questo passaggio e vedi [Alternative all'agente AI](#alternative-allagente-ai) — ti dice cosa installare al posto.
+> Preferisci usare **Codex** invece di Claude? Installa lo stesso VS Code, ma sostituisci l'estensione Claude con quella OpenAI Codex. Vedi [Alternative all'agente AI](#alternative-allagente-ai) per i dettagli.
 
 **Il terminale dentro VS Code**:
 
@@ -229,11 +231,15 @@ Verifica nel terminale Ubuntu: `docker --version`
 
 #### 6. Visual Studio Code
 
+> **Vuoi usare Cursor invece di VS Code?** Se hai già deciso di usare Cursor: **non installare VS Code** — scarica Cursor per Windows da [cursor.com](https://cursor.com) e continua a usarlo come editor per il resto delle istruzioni. Salta anche il passaggio 7 (Claude Code CLI) e vedi [Alternative all'agente AI](#alternative-allagente-ai). Non installare entrambi.
+
 1. Scarica VS Code per Windows da [code.visualstudio.com](https://code.visualstudio.com/)
 2. Installa l'estensione **WSL** (cerca "WSL" nel marketplace delle estensioni) — ti permette di aprire cartelle Linux dentro VS Code
 3. Installa l'estensione **Claude Code** (cerca "Claude Code" nel marketplace)
 
 Per aprire il terminale integrato: menu **Terminal → New Terminal** (oppure `` Ctrl + ` ``). Assicurati che il terminale sia Ubuntu/WSL, non PowerShell.
+
+> Preferisci usare **Codex** invece di Claude? Installa lo stesso VS Code, ma sostituisci l'estensione Claude con quella OpenAI Codex. Vedi [Alternative all'agente AI](#alternative-allagente-ai) per i dettagli.
 
 #### 7. Claude Code
 
@@ -406,17 +412,19 @@ L'agente seguirà comunque le istruzioni del comando. Lo stesso vale per `/creat
 
 ### Cursor Composer
 
-**Cos'è**: un editor di codice (alternativa a VS Code) con un agente AI integrato. Niente da installare nel terminale.
+**Cos'è**: un editor di codice (alternativa a VS Code) con un agente AI integrato. **Sostituisce** VS Code — non si usano insieme.
 
 **Come usarlo:**
 
-1. Salta i passaggi "Visual Studio Code" e "Claude Code" nei prerequisiti.
-2. Scarica **Cursor** da [cursor.com](https://cursor.com) e installalo come hai fatto con VS Code.
-3. Apri il progetto in Cursor invece di VS Code (`File → Open Folder`).
-4. Quando il README ti dice di aprire Claude, premi invece `Cmd + I` dentro Cursor — si apre Composer (la chat AI di Cursor).
-5. In Composer, scrivi `/starter-prompt` come faresti con Claude.
+1. **Non installare VS Code.** Cursor sostituisce VS Code completamente.
+2. **Non installare Claude Code CLI.** Composer (l'agente AI di Cursor) è già integrato dentro Cursor.
+3. Scarica **Cursor** da [cursor.com](https://cursor.com) e installalo (procedura identica a VS Code).
+4. Tutti i passaggi del README che parlano di "VS Code" si applicano a Cursor allo stesso modo: aprire una cartella (`File → Open Folder`), aprire il terminale integrato (`Terminal → New Terminal`), eseguire `pnpm install`, ecc.
+5. Quando il README dice di aprire Claude e scrivere `/starter-prompt`, fai invece così:
+   - Premi `Cmd + I` (Mac) o `Ctrl + I` (Windows) dentro Cursor → si apre Composer.
+   - In Composer scrivi `/starter-prompt`.
 
-Cursor 2.0 supporta i comandi custom direttamente, quindi normalmente funziona "out of the box". Se per qualche motivo non li riconosce, vale lo stesso fallback descritto sopra (apri `.shared/commands/starter-prompt.md`, copia il contenuto, incolla in Composer).
+Cursor 2.0 supporta i comandi custom (`/starter-prompt`, `/create-spec`, ecc.) direttamente — normalmente funziona "out of the box". Se per qualche motivo non li riconosce, vale lo stesso fallback descritto sopra per Codex (apri il file del comando in `.shared/commands/`, copia il contenuto, incolla in Composer).
 
 Cursor ha un piano gratuito per iniziare; per un uso continuativo serve un abbonamento.
 
