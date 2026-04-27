@@ -5,7 +5,10 @@ const _ctx = _canvas.getContext('2d')
 
 export function measureLine(text: string, fontSize: number): number {
   if (!_ctx) return 0
-  const plain = text.replace(/\[\/?(s)\]/gi, '').toUpperCase()
+  const plain = text
+    .replace(/\[\/?(s)\]/gi, '')
+    .replace(/\[COLOR=#[0-9A-Fa-f]{3,8}\]|\[\/COLOR\]|\[SIZE=[0-9.]+\]|\[\/SIZE\]/gi, '')
+    .toUpperCase()
   _ctx.font = `600 ${fontSize}px Arial, sans-serif`
   return _ctx.measureText(plain).width
 }

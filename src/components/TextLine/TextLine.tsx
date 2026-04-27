@@ -18,7 +18,7 @@ function fittedFontSize(text: string, maxWidth: number, fontSize: number): numbe
   if (!text.trim() || !_ctx) return fontSize
   _ctx.font = `600 ${fontSize}px Arial, sans-serif`
   const measured = _ctx.measureText(text.toUpperCase()).width
-  if (measured <= maxWidth) return fontSize  // riga corta: nessuna modifica
+  if (measured <= maxWidth) return fontSize
   const reduced = Math.floor(fontSize * (maxWidth / measured) * 0.97)
   return Math.max(reduced, 12)
 }
@@ -30,11 +30,15 @@ export default function TextLine({ text, sectionColor, specialColor, fontSize, a
 
   return (
     <span className={styles.line} style={{ fontSize: actualFontSize }}>
-      {fragments.map((frag, i) => (
-        <span key={i} style={{ color: frag.special ? specialColor : sectionColor }}>
-          {frag.text}
-        </span>
-      ))}
+      {fragments.map((frag, i) => {
+        const color = frag.customColor ?? (frag.special ? specialColor : sectionColor)
+        const spanSize = frag.sizeFactor != null ? Math.round(actualFontSize * frag.sizeFactor) : undefined
+        return (
+          <span key={i} style={{ color, ...(spanSize != null ? { fontSize: spanSize } : {}) }}>
+            {frag.text}
+          </span>
+        )
+      })}
     </span>
   )
 }

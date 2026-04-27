@@ -3,6 +3,7 @@ import Home from './routes/Home/Home'
 import Scaletta from './routes/Scaletta/Scaletta'
 import Live from './routes/Live/Live'
 import Impostazioni from './routes/Impostazioni/Impostazioni'
+import SongEditor from './routes/SongEditor/SongEditor'
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
         <Route path="/scaletta/:id" element={<Scaletta />} />
         <Route path="/live/:setlistId" element={<Live />} />
         <Route path="/impostazioni" element={<Impostazioni />} />
+        <Route path="/editor/:songId" element={<SongEditor />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

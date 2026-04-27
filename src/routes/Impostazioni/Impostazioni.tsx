@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MdArrowBack } from 'react-icons/md'
+import { MdArrowBack, MdOutlineLocalLibrary } from 'react-icons/md'
 import AppHeader from '../../components/AppHeader/AppHeader'
 import AppFooter from '../../components/AppFooter/AppFooter'
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog'
+import LibraryModal from '../../components/LibraryModal/LibraryModal'
 import { useSettings } from '../../hooks/useSettings'
 import { useSongs } from '../../hooks/useSongs'
 import { parseSong } from '../../lib/parser'
@@ -30,7 +31,8 @@ const COLOR_FIELDS: ColorField[] = [
 export default function Impostazioni() {
   const navigate = useNavigate()
   const { settings, updateColors, resetColors } = useSettings()
-  const { songs, importSong, clearLibrary, findByTitle } = useSongs()
+  const { songs, importSong, removeSong, clearLibrary, findByTitle } = useSongs()
+  const [libraryOpen, setLibraryOpen] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const colorRefs = useRef<Record<string, HTMLInputElement | null>>({})
@@ -155,6 +157,12 @@ export default function Impostazioni() {
                 Elimina libreria
               </button>
             )}
+            {songs.length > 0 && (
+              <button className="btn-secondary" onClick={() => setLibraryOpen(true)}>
+                <MdOutlineLocalLibrary size={16} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+                Apri libreria
+              </button>
+            )}
           </div>
           <input
             ref={fileInputRef}
@@ -239,6 +247,9 @@ export default function Impostazioni() {
             <p>• <strong>[R]</strong> come prima riga di una sezione = ritornello (testo giallo).</p>
             <p>• Nessun marcatore = strofa (testo bianco).</p>
             <p>• <strong>[S]testo[/S]</strong> = parola o frase in colore speciale (viola chiaro), funziona dentro strofe e ritornelli.</p>
+            <p>• <strong>[COLOR=#FF0000]testo[/COLOR]</strong> = colore personalizzato su una parola o frase (usa l'editor per applicarlo).</p>
+            <p>• <strong>[SIZE=1.5]testo[/SIZE]</strong> = dimensione personalizzata su una parola o frase — il numero è un moltiplicatore (es. 1.5 = 50% più grande, 0.8 = 20% più piccolo).</p>
+            <p>• <code>[COLOR]</code> e <code>[SIZE]</code> si possono annidare: <code>[COLOR=#FF0000][SIZE=1.5]testo[/SIZE][/COLOR]</code>.</p>
             <p>• Scrivi il testo in minuscolo — l'app lo converte in maiuscolo automaticamente.</p>
           </div>
         </section>
@@ -247,6 +258,15 @@ export default function Impostazioni() {
       </div>
       </div>
       <AppFooter />
+
+      <LibraryModal
+        open={libraryOpen}
+        onClose={() => setLibraryOpen(false)}
+        songs={songs}
+        colors={settings.colors}
+        onRemoveSong={removeSong}
+        onEdit={(id) => { setLibraryOpen(false); navigate(`/editor/${id}`) }}
+      />
 
       <ConfirmDialog
         open={confirmClearLibrary}

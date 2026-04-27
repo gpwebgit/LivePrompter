@@ -6,6 +6,51 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.2.4',
+    date: '27 aprile 2026',
+    changes: [
+      'Editor: controllo dimensione sostituito con spinner ▼ valore ▲ — range 0.5×–2.0×, step 0.1×, con campo editabile direttamente (conferma con Invio)',
+    ],
+  },
+  {
+    version: '1.2.3',
+    date: '27 aprile 2026',
+    changes: [
+      'Fix editor: il rendering Live ora appare correttamente — il ResizeObserver si attaccava prima che il brano fosse caricato (liveAreaRef null), ora aspetta che song sia disponibile',
+    ],
+  },
+  {
+    version: '1.2.2',
+    date: '27 aprile 2026',
+    changes: [
+      'Editor: selezione sempre preservata dopo aver applicato un marcatore — la selezione si sposta sull\'intero blocco inserito, pronta per una successiva modifica',
+      'Editor: applicare un colore o una dimensione su testo già formattato sostituisce il marcatore esistente invece di annidarne uno nuovo',
+    ],
+  },
+  {
+    version: '1.2.1',
+    date: '27 aprile 2026',
+    changes: [
+      'Editor brani: rendering Live sempre visibile affianco alla textarea — nessun toggle modalità, le modifiche si vedono in tempo reale',
+      'Layout adattivo: portrait = Live sopra / testo sotto; landscape = Live a sinistra (58%) / testo a destra (42%)',
+      'Navigazione pagine senza contatore: solo ‹ › (come la modalità Live, senza "2/3")',
+      'Export rinominato: il file scaricato si chiama nomeoriginale_edit.txt',
+      'Libreria: reader Play aggiornato — nessun contatore, solo ‹ ›',
+    ],
+  },
+  {
+    version: '1.2.0',
+    date: '27 aprile 2026',
+    changes: [
+      'Libreria brani: pulsante "Apri libreria" in Impostazioni — lista A-Z con Play (anteprima live), Modifica (matita) ed Elimina (con conferma)',
+      'Editor brani: nuova schermata /editor/:id con textarea nativa, toolbar colori (9 configurati + picker libero) e dimensioni (0.7× 0.8× 1.2× 1.5× 2×)',
+      'Applica colore e dimensione alla selezione con marcatori [COLOR=#hex]...[/COLOR] e [SIZE=n]...[/SIZE]',
+      'Anteprima live identica alla schermata Live (stesso paginator, stesso font, navigazione pagine)',
+      'Esporta brano come .txt con marcatori inclusi — reimportabile dal normale import',
+      'Nuovi marcatori riconosciuti anche nel Live screen: colore e dimensione personalizzati per singole parole o frasi',
+    ],
+  },
+  {
     version: '1.1.6',
     date: '27 aprile 2026',
     changes: [

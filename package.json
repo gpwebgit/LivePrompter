@@ -1,6 +1,6 @@
 {
   "name": "liveprompter",
-  "version": "1.1.6",
+  "version": "1.2.4",
   "description": "LivePrompter — PWA teleprompter per musicisti dal vivo",
   "type": "module",
   "scripts": {
