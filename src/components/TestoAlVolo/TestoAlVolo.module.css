@@ -1,0 +1,122 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Search mode */
+.searchHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px;
+  border-bottom: 1px solid #2a2a2a;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #e0e0e0;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  caret-color: #d40000;
+}
+
+.searchInput::placeholder {
+  color: #555555;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 6px;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0.8;
+}
+
+.closeBtn:active {
+  opacity: 0.5;
+}
+
+.searchResults {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.resultRow {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 16px 18px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #1e1e1e;
+  color: #e0e0e0;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.resultRow:active {
+  background-color: rgba(212, 0, 0, 0.08);
+}
+
+.noResults {
+  padding: 48px 18px;
+  text-align: center;
+  color: #555555;
+  font-size: 14px;
+}
+
+/* Reader mode */
+.readerHeader {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 18px;
+  gap: 12px;
+}
+
+.readerTitle {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.readerBody {
+  flex: 1;
+  overflow: hidden;
+  padding: 8px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+}

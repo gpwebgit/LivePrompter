@@ -1,28 +1,95 @@
-import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
-import * as schema from "./schema";
+import { openDB, type IDBPDatabase } from 'idb'
+import type { Song, Setlist, Settings } from './types'
+import { DEFAULT_SETTINGS } from './types'
 
-const connectionString = process.env.POSTGRES_URL;
-
-// Don't crash at import time — the setup wizard needs to load before the
-// database is configured. Any code that uses `db` will get a clear error
-// if POSTGRES_URL is missing.
-let db: PostgresJsDatabase<typeof schema>;
-
-if (connectionString) {
-  const client = postgres(connectionString);
-  db = drizzle(client, { schema });
-} else {
-  // Proxy that throws a helpful message on any property access / method call
-  db = new Proxy({} as PostgresJsDatabase<typeof schema>, {
-    get(_, prop) {
-      if (prop === "then" || prop === Symbol.toPrimitive) return undefined;
-      throw new Error(
-        "POSTGRES_URL is not set. Check your .env file.\n" +
-          "For local dev: docker compose up -d (then use the default URL in env.example)"
-      );
-    },
-  });
+interface LivePrompterDB {
+  songs: {
+    key: string
+    value: Song
+  }
+  setlists: {
+    key: string
+    value: Setlist
+  }
+  settings: {
+    key: string
+    value: Settings
+  }
 }
 
-export { db };
+const DB_NAME = 'liveprompter'
+const DB_VERSION = 1
+
+let dbPromise: Promise<IDBPDatabase<LivePrompterDB>> | null = null
+
+function getDb(): Promise<IDBPDatabase<LivePrompterDB>> {
+  if (!dbPromise) {
+    dbPromise = openDB<LivePrompterDB>(DB_NAME, DB_VERSION, {
+      upgrade(db) {
+        db.createObjectStore('songs', { keyPath: 'id' })
+        db.createObjectStore('setlists', { keyPath: 'id' })
+        db.createObjectStore('settings', { keyPath: 'id' })
+      },
+    })
+  }
+  return dbPromise
+}
+
+// Songs
+export async function getSongs(): Promise<Song[]> {
+  const db = await getDb()
+  return db.getAll('songs')
+}
+
+export async function getSong(id: string): Promise<Song | undefined> {
+  const db = await getDb()
+  return db.get('songs', id)
+}
+
+export async function putSong(song: Song): Promise<void> {
+  const db = await getDb()
+  await db.put('songs', song)
+}
+
+export async function deleteSong(id: string): Promise<void> {
+  const db = await getDb()
+  await db.delete('songs', id)
+}
+
+export async function clearSongs(): Promise<void> {
+  const db = await getDb()
+  await db.clear('songs')
+}
+
+// Setlists
+export async function getSetlists(): Promise<Setlist[]> {
+  const db = await getDb()
+  return db.getAll('setlists')
+}
+
+export async function getSetlist(id: string): Promise<Setlist | undefined> {
+  const db = await getDb()
+  return db.get('setlists', id)
+}
+
+export async function putSetlist(setlist: Setlist): Promise<void> {
+  const db = await getDb()
+  await db.put('setlists', setlist)
+}
+
+export async function deleteSetlist(id: string): Promise<void> {
+  const db = await getDb()
+  await db.delete('setlists', id)
+}
+
+// Settings
+export async function getSettings(): Promise<Settings> {
+  const db = await getDb()
+  const s = await db.get('settings', 'config')
+  return s ?? DEFAULT_SETTINGS
+}
+
+export async function putSettings(settings: Settings): Promise<void> {
+  const db = await getDb()
+  await db.put('settings', settings)
+}

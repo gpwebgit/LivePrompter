@@ -1,17 +1,19 @@
-# Simo's Agentic Coding Boilerplate — AI Assistant Guidelines
+# LivePrompter — AI Assistant Guidelines
 
 ## Project Overview
 
-A production-ready Next.js boilerplate for building AI-powered web applications. Works with any modern AI coding agent — Claude Code, OpenAI Codex, or Cursor Composer.
+LivePrompter è una PWA (Progressive Web App) teleprompter per musicisti dal vivo. Completamente offline, installabile su Android tramite Chrome, navigazione con pedale Bluetooth. Works with any modern AI coding agent — Claude Code, OpenAI Codex, or Cursor Composer.
 
 ### Tech Stack
 
-- **Framework**: Next.js 16 (App Router, Turbopack), React 19, TypeScript 5.9
-- **AI**: Vercel AI SDK 5 + OpenRouter (100+ models via single API)
-- **Auth**: Better Auth (email/password + Google OAuth)
-- **Database**: PostgreSQL + Drizzle ORM
-- **UI**: shadcn/ui + Tailwind CSS 4 + dark mode (next-themes)
-- **Storage**: Local filesystem (dev) / Vercel Blob (production)
+- **Framework**: Vite 6 + React 18 + TypeScript 5
+- **Routing**: React Router v6 (SPA, stack navigation)
+- **Storage**: IndexedDB tramite `idb` (offline, no server)
+- **UI**: CSS Modules + design system custom (dark pro)
+- **PWA**: vite-plugin-pwa + Workbox (cache-first, service worker)
+- **Drag & Drop**: @dnd-kit/core + @dnd-kit/sortable
+- **Icons**: react-icons (bundlato, nessun CDN)
+- **Fonts**: @fontsource/roboto (bundlato localmente)
 - **Package Manager**: pnpm
 
 ## File Map (for context management)
@@ -20,39 +22,41 @@ Use this to decide which files to read for a given task. **Don't load everything
 
 ### Core Configuration
 - `package.json` — dependencies and scripts
-- `next.config.ts` — Next.js config + security headers
-- `drizzle.config.ts` — database migration config
-- `tsconfig.json` — TypeScript config
-- `components.json` — shadcn/ui config
+- `vite.config.ts` — Vite + PWA config (manifest, Workbox)
+- `tsconfig.app.json` — TypeScript config for src/
+- `tsconfig.node.json` — TypeScript config for vite.config.ts
+- `index.html` — entry point (meta viewport, link manifest)
+- `DESIGN.md` — design system e direzione estetica (leggere SEMPRE per lavoro UI)
 
-### Authentication
-- `src/lib/auth.ts` — Better Auth server config
-- `src/lib/auth-client.ts` — client-side auth hooks (signIn, signUp, signOut, useSession)
-- `src/lib/session.ts` — server-side session helpers (requireAuth, getOptionalSession)
+### Data Layer
+- `src/lib/types.ts` — tutti i TypeScript types (Song, Setlist, Settings, Page, ecc.)
+- `src/lib/db.ts` — wrapper IndexedDB (idb): CRUD per songs, setlists, settings
+- `src/hooks/useSongs.ts` — hook reattivo lista brani
+- `src/hooks/useSetlists.ts` — hook reattivo lista scalette
+- `src/hooks/useSettings.ts` — hook reattivo impostazioni (colori + display)
 
-### Database
-- `src/lib/db.ts` — database connection
-- `src/lib/schema.ts` — Drizzle schema (all tables)
-- `drizzle/` — migration files (don't edit directly)
+### Text Engine
+- `src/lib/parser.ts` — parseSong(), parseInlineMarkers()
+- `src/lib/paginator.ts` — paginateSong() con font adattivo per canzone
 
-### API Layer
-- `src/lib/api-utils.ts` — response helpers, auth/validation/rate-limit wrappers
-- `src/lib/rate-limit.ts` — rate limiter (auto-applied, configure limits here)
-- `src/lib/logger.ts` — structured logging
-- `src/lib/env.ts` — environment variable validation + setup status
+### Routes (schermate)
+- `src/routes/Home/` — lista scalette, empty states, navigazione
+- `src/routes/Scaletta/` — editor scaletta con drag & drop
+- `src/routes/Live/` — teleprompter fullscreen, pedale, Wake Lock
+- `src/routes/Impostazioni/` — display, libreria, colori, guida
 
-### Storage
-- `src/lib/storage.ts` — file upload/delete (auto-switches local ↔ Vercel Blob)
+### Components
+- `src/components/AppHeader/` — header riutilizzabile (logo + slot left/right)
+- `src/components/ConfirmDialog/` — dialog conferma riutilizzabile
+- `src/components/TextLine/` — rendering riga con inline [S]...[/S]
 
-### UI
-- `src/components/ui/` — shadcn/ui components
-- `src/components/` — app-level components
-- `src/app/globals.css` — theme + Tailwind setup
+### Styles
+- `src/styles/global.css` — reset CSS, font-face Roboto, classi bottoni globali
+- `src/styles/variables.css` — variabili CSS design system
 
-### E2E Testing
-- `playwright.config.ts` — Playwright config (baseURL, browser, webServer)
-- `e2e/` — all E2E test files (one file per feature area)
-- Run with `pnpm test:e2e`
+### PWA Assets
+- `public/icons/` — icon-192.png, icon-512.png (rigenerabili con `node scripts/generate-icons.mjs`)
+- `scripts/generate-icons.mjs` — generatore icone PNG pure-Node.js
 
 ## Critical Rules
 
@@ -64,147 +68,88 @@ pnpm lint && pnpm typecheck
 ### 2. Never start the dev server
 Don't run `pnpm dev`. Ask the user to provide terminal output if needed.
 
-### 3. Use OpenRouter, not OpenAI directly
+### 3. Zero network calls — app completamente offline
+Non aggiungere mai fetch(), axios, o qualsiasi chiamata HTTP a runtime.
+Nessuna dipendenza che richieda CDN o server esterno.
+
+### 4. IndexedDB patterns
 ```typescript
-import { createOpenRouter } from "@openrouter/ai-sdk-provider";
-const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
-const model = openrouter(process.env.OPENROUTER_MODEL || "openai/gpt-4.1-mini");
+import { getSongs, putSong, deleteSong } from "@/lib/db";
+import { useSongs } from "@/hooks/useSongs";
+
+// Nel componente React — usa sempre gli hook:
+const { songs, importSong, removeSong } = useSongs();
+
+// Nelle funzioni asincrone standalone — usa le funzioni db dirette:
+const song = await getSong(id);
+await putSong({ id: crypto.randomUUID(), title, content, importedAt: new Date() });
 ```
 
-### 4. Use the API utilities — don't reinvent them
-```typescript
-import { apiResponse, apiError, requireApiAuth, applyRateLimit, parseBody } from "@/lib/api-utils";
-import { RATE_LIMITS } from "@/lib/rate-limit";
+### 5. Colori live: sempre inline style, mai variabili CSS
+I 9 colori della schermata Live sono configurabili dall'utente e vengono letti da IndexedDB.
+NON usare variabili CSS per questi colori — usare sempre `style={{ color: settings.colors.liveTitle }}`.
+Le variabili CSS (in `variables.css`) sono SOLO per le schermate di gestione (HOME, SCALETTA, IMPOSTAZIONI).
 
-export async function POST(req: Request) {
-  // Rate limit
-  const limited = await applyRateLimit("my-route", RATE_LIMITS.api);
-  if (limited) return limited;
+### 6. Styling: CSS Modules + variabili CSS
+- Ogni componente/pagina ha il suo `.module.css`
+- Usa `var(--color-bg-surface)` ecc. nelle schermate di gestione
+- Usa `className={styles.myClass}` per classi scoped
+- Classi bottoni globali in `global.css`: `btn-primary`, `btn-secondary`, `btn-destructive`
+- NON usare Tailwind, shadcn, o inline styles nelle schermate di gestione (eccetto colori live)
 
-  // Auth
-  const { session, error } = await requireApiAuth();
-  if (error) return error;
+### 7. Leggi DESIGN.md prima di qualsiasi lavoro UI
+`DESIGN.md` alla root è la fonte di verità per l'estetica. Contiene:
+- Palette colori completa
+- Tipografia (Roboto gestione / Arial SemiBold live)
+- Spacing e border radius
+- Anti-pattern specifici per questa app
+- Spec dei componenti (bottoni, input, card)
 
-  // Validate body
-  const { data, error: parseErr } = await parseBody(req, myZodSchema);
-  if (parseErr) return parseErr;
-
-  // Do work...
-  return apiResponse({ result: "ok" });
-}
+### 8. Formato file .txt e algoritmo paginazione
 ```
-
-### 5. Database patterns
-```typescript
-import { db } from "@/lib/db";
-import { myTable } from "@/lib/schema";
-import { eq } from "drizzle-orm";
-
-// Query
-const rows = await db.select().from(myTable).where(eq(myTable.userId, userId));
-
-// Insert
-await db.insert(myTable).values({ ... });
-
-// After schema changes:
-// 1. Edit src/lib/schema.ts
-// 2. Run: pnpm run db:generate
-// 3. Run: pnpm run db:migrate
+Riga 1: Titolo canzone
+Riga 2: vuota (obbligatoria)
+...sezioni divise da righe vuote...
+[R] come prima riga = ritornello (giallo)
+[S]testo[/S] = testo speciale (viola)
 ```
+Il font size è per-canzone (36sp→28sp min). Usare sempre `paginateSong()` — non reinventarlo.
 
-### 6. Authentication in pages
-```typescript
-// Server Component (protected page)
-import { requireAuth } from "@/lib/session";
+### 9. Reuse components — check before creating
+1. Controlla `src/components/` per componenti esistenti (AppHeader, ConfirmDialog, TextLine)
+2. Estendi con props invece di forkare
+3. Crea nuovi componenti in `src/components/NomeComponente/` con file `.tsx` + `.module.css`
 
-export default async function MyPage() {
-  const session = await requireAuth(); // redirects to / if not logged in
-  return <div>Hello {session.user.name}</div>;
-}
-
-// Client Component
-import { useSession } from "@/lib/auth-client";
-
-function MyComponent() {
-  const { data: session, isPending } = useSession();
-}
-```
-
-### 7. Styling
-- Use shadcn/ui components first — install new ones with `pnpm dlx shadcn@latest add <name>`
-- Use Tailwind utility classes, not custom CSS
-- Use theme tokens: `bg-background`, `text-foreground`, `bg-muted`, etc.
-- Support dark mode — shadcn handles this automatically
-
-### 8. File storage
-```typescript
-import { upload, deleteFile } from "@/lib/storage";
-
-const result = await upload(buffer, "photo.png", "avatars");
-// result.url → "/uploads/avatars/photo.png" (dev) or "https://blob.vercel.io/..." (prod)
-
-await deleteFile(result.url);
-```
-
-### 9. Every API route must have
-- Rate limiting (via `applyRateLimit`)
-- Authentication check (via `requireApiAuth`) if the route is protected
-- Input validation (via `parseBody` with a Zod schema)
-- Proper error responses (via `apiError`)
-
-### 10. Reuse components — don't reinvent them
-Before writing any UI, check what already exists:
-1. **shadcn/ui first** — if a component exists in `src/components/ui/`, use it. Install missing ones with `pnpm dlx shadcn@latest add <name>` rather than building from scratch.
-2. **App components second** — check `src/components/` for existing app-level components before creating new ones.
-3. **Extract, don't duplicate** — if the same UI pattern appears more than once, extract it into a reusable component in `src/components/`.
-4. **Extend, don't fork** — if an existing component almost fits, add a prop to it. Don't copy-paste and modify.
-
-Writing the same UI twice is always wrong. A new `<div>` where a `<Button>` or `<Card>` would do is always wrong.
-
-### 11. Write efficient database queries
-Every query has a cost. Follow these rules on every feature:
-
-- **Select only what you need** — never `db.select().from(table)` when you only need 2 fields:
-  ```typescript
-  // Bad
-  const users = await db.select().from(usersTable).where(eq(usersTable.id, id));
-  // Good
-  const users = await db.select({ id: usersTable.id, name: usersTable.name }).from(usersTable).where(eq(usersTable.id, id));
-  ```
-- **Always paginate** — any query that returns a list must have `.limit()`. Default max: 50 rows.
-- **No queries inside loops** — never query in a `for` loop. Use a single query with `.where(inArray(...))` instead.
-- **Add indexes for filter columns** — any column used in `.where()` or `.orderBy()` that isn't a primary key needs an index in `schema.ts`:
-  ```typescript
-  export const posts = pgTable("posts", { ... }, (t) => [index("posts_user_id_idx").on(t.userId)]);
-  ```
-- **Use transactions for multi-step writes** — if two or more inserts/updates must succeed together, wrap them in `db.transaction()`.
+### 10. Schermata Live — regole speciali
+- `position: fixed; inset: 0` — fullscreen assoluto
+- Zero elementi focalizzabili
+- Transizioni pagina istantanee (no CSS transition/animation)
+- Keyboard listener su `window` per PageDown/PageUp (pedale Bluetooth)
+- Wake Lock API al mount, rilascia all'unmount
+- History API pushState per intercettare Back Android
 
 ## Available Scripts
 
 ```bash
-pnpm dev          # Start dev server (Turbopack) — DON'T run this yourself
-pnpm build        # Build for production (runs db:migrate first)
+pnpm dev          # Start dev server (Vite) — DON'T run this yourself
+pnpm build        # TypeScript check + Vite build (genera dist/)
+pnpm preview      # Serve il build locale (dopo pnpm build)
 pnpm lint         # ESLint — ALWAYS run after changes
-pnpm typecheck    # TypeScript checking — ALWAYS run after changes
+pnpm typecheck    # TypeScript check — ALWAYS run after changes
 pnpm check        # Run both lint + typecheck
-
-pnpm db:generate  # Generate migrations after schema changes
-pnpm db:migrate   # Apply migrations
-pnpm db:push      # Push schema directly (dev shortcut)
-pnpm db:studio    # Open Drizzle Studio (database GUI)
-pnpm db:reset     # Drop and recreate all tables
+node scripts/generate-icons.mjs  # Rigenera le icone PWA PNG
 ```
 
 ## Context Management for Commands
 
 When implementing a task, follow this loading strategy:
 
-1. **Always load first**: `AGENTS.md`, `src/lib/schema.ts`, `package.json`
-2. **For API work**: add `src/lib/api-utils.ts`, `src/lib/rate-limit.ts`
-3. **For auth work**: add `src/lib/auth.ts`, `src/lib/session.ts`
-4. **For UI work**: add `src/app/globals.css`, check `src/components/ui/` for existing components
-5. **For the specific feature**: load only the files in the relevant route/component directory
-6. **Skip**: `node_modules/`, `drizzle/` (migrations), `.next/`, `pnpm-lock.yaml`
+1. **Always load first**: `AGENTS.md`, `src/lib/types.ts`, `package.json`, `DESIGN.md`
+2. **For data work**: add `src/lib/db.ts` + hook relevante
+3. **For text/pagination work**: add `src/lib/parser.ts`, `src/lib/paginator.ts`
+4. **For UI work**: read `DESIGN.md`, check `src/components/` per componenti esistenti
+5. **For the specific feature**: load only the files in the relevant route directory
+6. **Skip**: `node_modules/`, `dist/`, `pnpm-lock.yaml`
 
 This prevents context window waste on large projects.
 
@@ -215,17 +160,6 @@ When the user describes something to build, ask yourself: **would this feature d
 - **No** → implement directly in this context. Bug fixes, styling tweaks, adding a button to an existing page, extending an existing feature with a small enhancement — just do it.
 - **Yes** → it introduces a new capability to the app (new entities, new user flows, new screens). Create a spec first, then build via `/continue-feature` (which uses your runtime's sub-agent mechanism if available, or executes sequentially otherwise).
 - **Ambiguous** → check what already exists in the codebase (routes, schema, components) and ask the user: "This touches X — do you want me to spec it or just handle it?"
-
-### Without spec: implement directly following all rules above.
-
-### With spec:
-
-**Building a new app from scratch:**
-1. Read `.shared/commands/starter-prompt.md` and follow it — interview the user, generate all spec files + `docs/business/starter-prompt.md`, then build everything automatically.
-
-**Adding a feature to an existing app:**
-1. Read `.shared/commands/create-spec.md` and follow it — interview the user, run research (parallel sub-agents if the runtime supports them, otherwise inline), generate the spec. Stop after the user confirms the plan.
-2. Then read `.shared/commands/continue-feature.md` and follow it — it loops automatically until all tasks are complete, using parallel waves or sequential execution per runtime capability.
 
 ### Feature Documentation Rule
 
@@ -238,7 +172,3 @@ When the user describes something to build, ask yourself: **would this feature d
 ### README Rule
 
 `README.md` is always the **state-of-the-art document** of the application. It must describe what the app IS, not what it was scaffolded from.
-
-- **After the first build** (via `/starter-prompt`): the README must be completely rewritten to describe the actual app — its purpose, features, setup instructions, and tech stack. All boilerplate references must be removed.
-- **After adding a feature**: update the README if the feature changes what the app does or how to set it up.
-- **Never reference the boilerplate** in a built app's README. The boilerplate is scaffolding — once the app exists, the scaffolding disappears.

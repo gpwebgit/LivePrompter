@@ -1,0 +1,40 @@
+:root {
+  /* Management screens palette */
+  --color-bg-app: #121212;
+  --color-bg-surface: #1e1e1e;
+  --color-bg-elevated: #252525;
+  --color-border: #2a2a2a;
+  --color-text-primary: #e0e0e0;
+  --color-text-secondary: #888888;
+  --color-accent: #d40000;
+  --color-accent-pressed: #aa0000;
+
+  /* Typography */
+  --font-management: 'Roboto', sans-serif;
+  --font-live: Arial, sans-serif;
+
+  /* Spacing */
+  --page-padding-h: 16px;
+  --page-padding-v: 16px;
+  --gap-card: 12px;
+  --gap-section: 24px;
+
+  /* Shape */
+  --radius-card: 8px;
+  --radius-btn: 6px;
+  --radius-input: 6px;
+  --radius-badge: 3px;
+
+  /* Transitions (management only — LIVE has no transitions) */
+  --ease-snap: cubic-bezier(0.25, 0, 0, 1);
+  --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+  --t-snap: 80ms var(--ease-snap);
+  --t-settle: 200ms var(--ease-settle);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --t-snap: 0ms;
+    --t-settle: 0ms;
+  }
+}
