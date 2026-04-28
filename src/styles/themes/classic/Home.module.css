@@ -11,20 +11,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px 12px;
+  padding: 14px 20px 10px;
   flex-shrink: 0;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-bottom: 1px solid var(--glass-border);
-  box-shadow: var(--glass-highlight);
+  border-bottom: 1px solid var(--color-border);
 }
 
-.brandLogo {
-  height: 38px;
-  width: auto;
-  display: block;
-  border-radius: 8px;
+.brandName {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-accent);
+  letter-spacing: -0.3px;
 }
 
 .brandActions {
@@ -37,36 +33,34 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,0.06);
+  background: none;
   border: none;
   padding: 8px;
   cursor: pointer;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-btn);
   -webkit-tap-highlight-color: transparent;
-  transition: background var(--t-snap);
-}
-.headerIconBtn:active {
-  background: rgba(255,255,255,0.12);
 }
 
-/* Scrollable content */
+.headerIconBtn:active { opacity: 0.6; }
+
+/* Scrollable content area */
 .content {
   flex: 1;
   overflow-y: auto;
   padding: 0 20px 24px;
-  -webkit-overflow-scrolling: touch;
 }
 
+/* Max-width container — centrato in landscape */
 .inner {
   max-width: 680px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding-top: 18px;
+  padding-top: 16px;
 }
 
-/* Header row */
+/* Setlists header row */
 .listHeader {
   display: flex;
   align-items: center;
@@ -78,7 +72,7 @@
   font-size: 20px;
   font-weight: 700;
   color: var(--color-text-primary);
-  letter-spacing: -0.4px;
+  letter-spacing: -0.3px;
 }
 
 .headerSub {
@@ -90,8 +84,8 @@
 .fabAdd {
   width: 44px;
   height: 44px;
-  border-radius: var(--radius-pill);
-  background: var(--color-accent);
+  border-radius: 50%;
+  background-color: var(--color-accent);
   color: #ffffff;
   border: none;
   font-size: 26px;
@@ -102,14 +96,14 @@
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
-  box-shadow: 0 0 0 1px rgba(212,0,0,0.4), 0 6px 20px rgba(212,0,0,0.32);
-  transition: transform var(--t-snap), box-shadow var(--t-snap);
+  box-shadow: 0 4px 12px rgba(212, 0, 0, 0.35);
+  transition: background-color var(--t-snap), transform var(--t-snap);
   -webkit-tap-highlight-color: transparent;
 }
+
 .fabAdd:active {
-  background: var(--color-accent-pressed);
-  transform: scale(0.93);
-  box-shadow: 0 0 0 1px rgba(212,0,0,0.3), 0 3px 10px rgba(212,0,0,0.2);
+  background-color: var(--color-accent-pressed);
+  transform: scale(0.95);
 }
 
 /* Banner */
@@ -117,12 +111,11 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(212,0,0,0.08);
-  border: 1px solid rgba(212,0,0,0.22);
+  background-color: #1a0000;
+  border: 1px solid #3a0000;
   border-radius: var(--radius-card);
   padding: 12px 14px;
   flex-wrap: wrap;
-  box-shadow: inset 0 1px 0 rgba(255,100,100,0.08);
 }
 
 .bannerText {
@@ -136,12 +129,26 @@
 .cardList {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
+/* Featured card */
+.cardFeatured {
+  background-color: var(--color-accent);
+  border-radius: var(--radius-card);
+  padding: 18px 18px 16px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--t-snap);
+}
+
+.cardFeatured:active { transform: scale(0.99); }
+
 .card {
-  background: var(--color-bg-surface);
-  border: 1px solid var(--glass-border);
+  background-color: var(--color-bg-surface);
   border-radius: var(--radius-card);
   padding: 16px 18px 14px;
   cursor: pointer;
@@ -149,19 +156,23 @@
   flex-direction: column;
   gap: 14px;
   -webkit-tap-highlight-color: transparent;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.06);
-  transition: transform var(--t-snap), box-shadow var(--t-snap);
+  transition: transform var(--t-snap);
 }
-.card:active {
-  transform: scale(0.985);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-}
+
+.card:active { transform: scale(0.99); }
 
 .cardTop {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
+}
+
+.cardNameFeatured {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
 }
 
 .cardName {
@@ -171,28 +182,30 @@
   line-height: 1.2;
 }
 
+.cardDateFeatured {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+  margin-top: 3px;
+}
+
 .cardDate {
   font-size: 12px;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   margin-top: 3px;
 }
 
 .cardDeleteBtn {
-  background: rgba(255,255,255,0.07);
+  background: none;
   border: none;
-  border-radius: var(--radius-pill);
-  padding: 5px;
+  padding: 4px;
   cursor: pointer;
   flex-shrink: 0;
   margin-top: -2px;
-  color: rgba(255,255,255,0.40);
   -webkit-tap-highlight-color: transparent;
-  transition: background var(--t-snap), color var(--t-snap);
+  opacity: 0.7;
 }
-.cardDeleteBtn:active {
-  background: rgba(212,0,0,0.12);
-  color: var(--color-accent);
-}
+
+.cardDeleteBtn:active { opacity: 1; }
 
 .cardBottom {
   display: flex;
@@ -205,6 +218,13 @@
   flex-direction: column;
 }
 
+.cardCountNumFeatured {
+  font-size: 42px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+}
+
 .cardCountNum {
   font-size: 36px;
   font-weight: 700;
@@ -212,29 +232,47 @@
   line-height: 1;
 }
 
-.cardCountLabel {
+.cardCountLabelFeatured {
   font-size: 12px;
-  color: var(--color-text-tertiary);
+  color: rgba(255, 255, 255, 0.7);
 }
 
-.cardLaunch {
-  background: var(--color-accent);
-  color: #ffffff;
+.cardCountLabel {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.cardLaunchFeatured {
+  background-color: rgba(255, 255, 255, 0.92);
+  color: #121212;
   border: none;
-  border-radius: var(--radius-pill);
-  padding: 10px 22px;
+  border-radius: 20px;
+  padding: 10px 20px;
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  box-shadow: 0 0 0 1px rgba(212,0,0,0.45), 0 4px 16px rgba(212,0,0,0.28);
-  transition: transform var(--t-snap), box-shadow var(--t-snap);
+  transition: transform var(--t-snap), opacity var(--t-snap);
 }
-.cardLaunch:active {
-  transform: scale(0.93);
-  box-shadow: 0 0 0 1px rgba(212,0,0,0.3), 0 2px 8px rgba(212,0,0,0.18);
+
+.cardLaunchFeatured:active { transform: scale(0.96); opacity: 0.85; }
+
+.cardLaunch {
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--t-snap), color var(--t-snap);
 }
+
+.cardLaunch:active { transform: scale(0.96); color: var(--color-text-primary); }
 
 /* Empty state */
 .emptyState {
@@ -254,9 +292,8 @@
 
 .emptySubtext {
   font-size: 13px;
-  color: var(--color-text-tertiary);
+  color: #555555;
   text-align: center;
-  line-height: 1.5;
 }
 
 /* Dots */
@@ -270,23 +307,13 @@
 .dot {
   width: 6px;
   height: 6px;
-  border-radius: var(--radius-pill);
-  background: rgba(255,255,255,0.18);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: background var(--t-snap);
+  border-radius: 50%;
+  background-color: var(--color-border);
 }
 
 .dotActive {
-  width: 22px;
+  width: 20px;
   height: 6px;
-  border-radius: var(--radius-pill);
-  background: var(--color-accent);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  box-shadow: 0 0 8px rgba(212,0,0,0.40);
+  border-radius: 3px;
+  background-color: var(--color-accent);
 }

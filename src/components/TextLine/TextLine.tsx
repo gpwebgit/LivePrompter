@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { parseInlineMarkers } from '../../lib/parser'
 import styles from './TextLine.module.css'
 
@@ -9,11 +10,9 @@ interface Props {
   availableWidth: number
 }
 
-// Canvas riutilizzato per evitare allocazioni ad ogni render
 const _canvas = document.createElement('canvas')
 const _ctx = _canvas.getContext('2d')
 
-// Riduce il font solo se la riga sfora availableWidth — le righe corte restano invariate
 function fittedFontSize(text: string, maxWidth: number, fontSize: number): number {
   if (!text.trim() || !_ctx) return fontSize
   _ctx.font = `600 ${fontSize}px Arial, sans-serif`
@@ -23,7 +22,7 @@ function fittedFontSize(text: string, maxWidth: number, fontSize: number): numbe
   return Math.max(reduced, 12)
 }
 
-export default function TextLine({ text, sectionColor, specialColor, fontSize, availableWidth }: Props) {
+const TextLine = memo(function TextLine({ text, sectionColor, specialColor, fontSize, availableWidth }: Props) {
   const fragments = parseInlineMarkers(text)
   const plainText = fragments.map((f) => f.text).join('')
   const actualFontSize = fittedFontSize(plainText, availableWidth, fontSize)
@@ -41,4 +40,6 @@ export default function TextLine({ text, sectionColor, specialColor, fontSize, a
       })}
     </span>
   )
-}
+})
+
+export default TextLine

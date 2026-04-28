@@ -1,16 +1,13 @@
 .footer {
   flex-shrink: 0;
   text-align: center;
-  padding: 10px 20px 16px;
-  background: rgba(9,9,15,0.70);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid var(--glass-border);
+  padding: 10px 16px 14px;
+  border-top: 1px solid var(--color-border);
 }
 
 .text {
   font-size: 11px;
-  color: var(--color-text-tertiary);
+  color: #444444;
   letter-spacing: 0.2px;
 }
 
@@ -18,27 +15,27 @@
   background: none;
   border: none;
   font-size: 11px;
-  color: rgba(255,255,255,0.28);
+  color: #555555;
   cursor: pointer;
   text-decoration: underline;
-  text-decoration-color: rgba(255,255,255,0.12);
+  text-decoration-color: #333333;
   padding: 0;
   font-family: inherit;
   letter-spacing: 0.2px;
   -webkit-tap-highlight-color: transparent;
   transition: color var(--t-snap);
 }
+
+.versionBtn:hover,
 .versionBtn:active {
   color: var(--color-text-secondary);
 }
 
-/* ── Changelog modal ── */
+/* Modal */
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.60);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -47,15 +44,12 @@
 }
 
 .modal {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-modal);
-  box-shadow: var(--glass-shadow);
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
   width: 100%;
-  max-width: 540px;
-  max-height: 78vh;
+  max-width: 520px;
+  max-height: 75vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -65,8 +59,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 22px;
-  border-bottom: 1px solid var(--glass-border);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
 }
 
@@ -74,31 +68,29 @@
   font-size: 15px;
   font-weight: 600;
   color: var(--color-text-primary);
-  letter-spacing: 0.1px;
 }
 
 .closeBtn {
-  background: rgba(255,255,255,0.08);
+  background: none;
   border: none;
   color: var(--color-text-secondary);
-  font-size: 14px;
+  font-size: 18px;
   cursor: pointer;
-  padding: 6px 10px;
-  border-radius: var(--radius-pill);
+  padding: 4px 6px;
   line-height: 1;
   -webkit-tap-highlight-color: transparent;
-  transition: background var(--t-snap);
 }
+
 .closeBtn:active {
-  background: rgba(255,255,255,0.14);
+  opacity: 0.6;
 }
 
 .modalBody {
   overflow-y: auto;
-  padding: 20px 22px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 20px;
 }
 
 .entry {
@@ -121,7 +113,7 @@
 
 .entryDate {
   font-size: 11px;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
 }
 
 .changeList {
@@ -130,7 +122,7 @@
   flex-direction: column;
   gap: 5px;
   padding-left: 12px;
-  border-left: 2px solid rgba(212,0,0,0.30);
+  border-left: 2px solid var(--color-border);
 }
 
 .changeItem {

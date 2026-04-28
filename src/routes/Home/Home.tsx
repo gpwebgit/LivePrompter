@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MdDeleteOutline, MdLibraryMusic, MdWarning, MdSearch, MdSettings } from 'react-icons/md'
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog'
@@ -10,52 +10,45 @@ import { useSettings } from '../../hooks/useSettings'
 import type { Setlist } from '../../lib/types'
 import styles from './Home.module.css'
 
+const CARDS_PER_PAGE = 5
+
 function formatDate(date: Date | string | undefined): string {
   if (!date) return ''
-  const d = new Date(date)
-  return d.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })
+  return new Date(date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-function SetlistCard({ setlist, featured, onEdit, onLaunch, onDelete }: {
+function SetlistCard({ setlist, onEdit, onLaunch, onDelete }: {
   setlist: Setlist
-  featured: boolean
   onEdit: () => void
   onLaunch: () => void
   onDelete: () => void
 }) {
   const displayDate = setlist.updatedAt ?? setlist.createdAt
-
   return (
-    <div className={featured ? styles.cardFeatured : styles.card} onClick={onEdit}>
+    <div className={styles.card} onClick={onEdit}>
       <div className={styles.cardTop}>
         <div>
-          <div className={featured ? styles.cardNameFeatured : styles.cardName}>
-            {setlist.name}
-          </div>
-          <div className={featured ? styles.cardDateFeatured : styles.cardDate}>
-            {formatDate(displayDate)}
-          </div>
+          <div className={styles.cardName}>{setlist.name}</div>
+          <div className={styles.cardDate}>{formatDate(displayDate)}</div>
         </div>
         <button
           className={styles.cardDeleteBtn}
           onClick={(e) => { e.stopPropagation(); onDelete() }}
           aria-label={`Elimina ${setlist.name}`}
         >
-          <MdDeleteOutline size={18} color={featured ? 'rgba(255,255,255,0.5)' : '#555555'} />
+          <MdDeleteOutline size={18} />
         </button>
       </div>
 
       <div className={styles.cardBottom}>
         <div className={styles.cardCount}>
-          <span className={featured ? styles.cardCountNumFeatured : styles.cardCountNum}>
-            {setlist.songIds.length}
-          </span>
-          <span className={featured ? styles.cardCountLabelFeatured : styles.cardCountLabel}>
+          <span className={styles.cardCountNum}>{setlist.songIds.length}</span>
+          <span className={styles.cardCountLabel}>
             {setlist.songIds.length === 1 ? 'brano' : 'brani'}
           </span>
         </div>
         <button
-          className={featured ? styles.cardLaunchFeatured : styles.cardLaunch}
+          className={styles.cardLaunch}
           onClick={(e) => { e.stopPropagation(); onLaunch() }}
         >
           AVVIA ▶
@@ -72,13 +65,26 @@ export default function Home() {
   const { settings } = useSettings()
   const [deleteTarget, setDeleteTarget] = useState<Setlist | null>(null)
   const [alVoloOpen, setAlVoloOpen] = useState(false)
+  const [pageIdx, setPageIdx] = useState(0)
 
-  // Long press per eliminare (alternativa ai tre puntini)
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const touchStartX = useRef(0)
+
+  const totalPages = Math.ceil(setlists.length / CARDS_PER_PAGE)
+
+  // Clamp page when setlists change
+  useEffect(() => {
+    if (pageIdx >= totalPages && totalPages > 0) {
+      setPageIdx(totalPages - 1)
+    }
+  }, [setlists.length, totalPages, pageIdx])
+
   const onPointerDown = (setlist: Setlist) => {
     longPressTimer.current = setTimeout(() => setDeleteTarget(setlist), 600)
   }
-  const onPointerUp = () => { if (longPressTimer.current) clearTimeout(longPressTimer.current) }
+  const onPointerUp = () => {
+    if (longPressTimer.current) clearTimeout(longPressTimer.current)
+  }
 
   const handleDelete = async () => {
     if (!deleteTarget) return
@@ -86,32 +92,51 @@ export default function Home() {
     setDeleteTarget(null)
   }
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+  }
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const delta = touchStartX.current - e.changedTouches[0].clientX
+    if (Math.abs(delta) < 50) return
+    if (delta > 0 && pageIdx < totalPages - 1) setPageIdx((p) => p + 1)
+    if (delta < 0 && pageIdx > 0) setPageIdx((p) => p - 1)
+  }
+
   const loading = loadingSetlists || loadingSongs
   const noSongs = !loading && songs.length === 0
   const noSetlists = !loading && setlists.length === 0
+  const currentPageSetlists = setlists.slice(pageIdx * CARDS_PER_PAGE, (pageIdx + 1) * CARDS_PER_PAGE)
 
   return (
     <div className={styles.page}>
       {/* Brand bar */}
       <div className={styles.brandBar}>
-        <span className={styles.brandName}>LivePrompter</span>
+        <img src="/prompterlive_logo.png" alt="PrompterLive" className={styles.brandLogo} />
         <div className={styles.brandActions}>
           <button className={styles.headerIconBtn} onClick={() => setAlVoloOpen(true)} aria-label="Testo al volo">
-            <MdSearch size={22} color="#888888" />
+            <MdSearch size={22} color="rgba(255,255,255,0.55)" />
           </button>
           <button className={styles.headerIconBtn} onClick={() => navigate('/impostazioni')} aria-label="Impostazioni">
-            <MdSettings size={22} color="#888888" />
+            <MdSettings size={22} color="rgba(255,255,255,0.55)" />
           </button>
         </div>
       </div>
 
-      <div className={styles.content} onPointerUp={onPointerUp} onPointerLeave={onPointerUp}>
+      <div
+        className={styles.content}
+        onPointerUp={onPointerUp}
+        onPointerLeave={onPointerUp}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className={styles.inner}>
-          {/* Header scalette + FAB */}
+          {/* Header + FAB */}
           <div className={styles.listHeader}>
             <div>
               <h1 className={styles.headerTitle}>Le tue scalette</h1>
-              {setlists.length > 0 && <p className={styles.headerSub}>{setlists.length} salvate</p>}
+              {setlists.length > 0 && (
+                <p className={styles.headerSub}>{setlists.length} salvate</p>
+              )}
             </div>
             <button className={styles.fabAdd} onClick={() => navigate('/scaletta/new')} aria-label="Nuova scaletta">
               +
@@ -129,14 +154,13 @@ export default function Home() {
             </div>
           )}
 
-          {/* Lista scalette */}
+          {/* Lista scalette (pagina corrente) */}
           {!noSetlists && (
             <div className={styles.cardList}>
-              {setlists.map((s, i) => (
-                <div key={s.id} data-setlist-id={s.id} onPointerDown={() => onPointerDown(s)}>
+              {currentPageSetlists.map((s) => (
+                <div key={s.id} onPointerDown={() => onPointerDown(s)}>
                   <SetlistCard
                     setlist={s}
-                    featured={i === 0}
                     onEdit={() => navigate(`/scaletta/${s.id}`)}
                     onLaunch={() => navigate(`/live/${s.id}`)}
                     onDelete={() => setDeleteTarget(s)}
@@ -149,17 +173,22 @@ export default function Home() {
           {/* Empty state */}
           {noSetlists && (
             <div className={styles.emptyState}>
-              <MdLibraryMusic size={48} color="#2a2a2a" />
+              <MdLibraryMusic size={48} color="rgba(255,255,255,0.10)" />
               <p className={styles.emptyText}>Nessuna scaletta</p>
               <p className={styles.emptySubtext}>Premi + per crearne una</p>
             </div>
           )}
 
-          {/* Dots indicator */}
-          {setlists.length > 1 && (
+          {/* Dots — solo quando ci sono più pagine */}
+          {totalPages > 1 && (
             <div className={styles.dots}>
-              {setlists.map((s, i) => (
-                <span key={s.id} className={i === 0 ? styles.dotActive : styles.dot} />
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i}
+                  className={i === pageIdx ? styles.dotActive : styles.dot}
+                  onClick={() => setPageIdx(i)}
+                  aria-label={`Pagina ${i + 1}`}
+                />
               ))}
             </div>
           )}

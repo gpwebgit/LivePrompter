@@ -21,30 +21,24 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 14px;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-bottom: 1px solid var(--glass-border);
-  box-shadow: var(--glass-highlight);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg-surface);
 }
 
 .iconBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,0.06);
+  background: none;
   border: none;
-  padding: 7px;
-  border-radius: var(--radius-pill);
+  padding: 6px;
+  border-radius: var(--radius-btn);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   flex-shrink: 0;
-  transition: background var(--t-snap);
 }
-.iconBtn:active {
-  background: rgba(255,255,255,0.12);
-}
+.iconBtn:active { opacity: 0.6; }
 
 .headerTitle {
   flex: 1;
@@ -64,7 +58,7 @@
 }
 
 .saveBtn {
-  padding: 7px 16px;
+  padding: 6px 14px;
   border-radius: var(--radius-btn);
   border: none;
   background: var(--color-accent);
@@ -75,18 +69,16 @@
   letter-spacing: 0.5px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  box-shadow: 0 0 0 1px rgba(212,0,0,0.4), 0 3px 12px rgba(212,0,0,0.24);
-  transition: opacity var(--t-snap), transform var(--t-snap);
+  transition: opacity 0.15s;
 }
-.saveBtnFlash {
-  opacity: 0.45;
-}
+.saveBtnFlash { opacity: 0.5; }
 
-/* ── Body ── */
+/* ── Body: Live + Edit ── */
 .body {
   flex: 1;
   display: flex;
   overflow: hidden;
+  /* Portrait: colonna */
   flex-direction: column;
 }
 
@@ -94,15 +86,17 @@
   .body { flex-direction: row; }
 }
 
-/* ── Live area ── */
+/* ── Live rendering area ── */
 .liveArea {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  /* Portrait: 55% dell'altezza disponibile */
   flex: 0 0 55%;
 }
 
 @media (orientation: landscape) {
+  /* Landscape: 58% della larghezza */
   .liveArea { flex: 0 0 58%; }
 }
 
@@ -121,6 +115,7 @@
   flex-direction: column;
 }
 
+/* Barra nav ‹ › — nessun contatore, solo frecce */
 .liveNav {
   flex-shrink: 0;
   height: 36px;
@@ -128,7 +123,6 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 8px;
-  border-top: 1px solid rgba(255,255,255,0.06);
 }
 
 .navBtn {
@@ -149,32 +143,30 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-top: 2px solid var(--glass-border);
-  background: var(--color-bg-app);
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-bg-app);
 }
 
 @media (orientation: landscape) {
   .editPanel {
     border-top: none;
-    border-left: 2px solid var(--glass-border);
+    border-left: 2px solid var(--color-border);
   }
 }
 
 /* Toolbar */
 .toolbar {
   flex-shrink: 0;
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--glass-border);
+  background-color: var(--color-bg-surface);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .toolRow {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 14px;
-  border-bottom: 1px solid var(--glass-border);
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--color-border);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -183,9 +175,9 @@
 .toolLabel {
   font-size: 10px;
   font-weight: 700;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.5px;
   flex-shrink: 0;
   min-width: 26px;
 }
@@ -199,15 +191,13 @@
 .swatch {
   width: 26px;
   height: 26px;
-  border-radius: var(--radius-pill);
-  border: 1.5px solid rgba(255,255,255,0.14);
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.12);
   cursor: pointer;
   flex-shrink: 0;
   -webkit-tap-highlight-color: transparent;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.30);
-  transition: transform var(--t-snap);
 }
-.swatch:active { transform: scale(0.84); }
+.swatch:active { transform: scale(0.85); }
 
 .swatchPlusWrapper {
   position: relative;
@@ -219,9 +209,9 @@
 .swatchPlus {
   width: 26px;
   height: 26px;
-  border-radius: var(--radius-pill);
-  border: 1.5px dashed rgba(255,255,255,0.22);
-  background: rgba(255,255,255,0.06);
+  border-radius: 50%;
+  border: 2px dashed var(--color-text-secondary);
+  background: none;
   color: var(--color-text-secondary);
   font-size: 15px;
   font-weight: 700;
@@ -230,10 +220,6 @@
   align-items: center;
   justify-content: center;
   -webkit-tap-highlight-color: transparent;
-  transition: background var(--t-snap);
-}
-.swatchPlus:active {
-  background: rgba(255,255,255,0.12);
 }
 
 .hiddenColorInput {
@@ -245,7 +231,7 @@
   pointer-events: none;
 }
 
-/* Size spinner */
+/* ── Size spinner ── */
 .sizeSpinner {
   display: flex;
   align-items: center;
@@ -254,38 +240,35 @@
 }
 
 .spinnerBtn {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius-btn);
-  border: 1px solid var(--glass-border);
-  background: rgba(255,255,255,0.07);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-app);
   color: var(--color-text-primary);
-  font-size: 12px;
+  font-size: 13px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   -webkit-tap-highlight-color: transparent;
   flex-shrink: 0;
-  transition: background var(--t-snap);
 }
-.spinnerBtn:active {
-  background: rgba(255,255,255,0.14);
-}
+.spinnerBtn:active { opacity: 0.6; }
 
 .spinnerValueWrap {
   display: flex;
   align-items: center;
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-btn);
-  background: rgba(255,255,255,0.06);
+  background: var(--color-bg-app);
   overflow: hidden;
   padding: 0 6px 0 8px;
   gap: 2px;
 }
 
 .spinnerInput {
-  width: 34px;
+  width: 36px;
   border: none;
   outline: none;
   background: transparent;
@@ -296,18 +279,20 @@
   -webkit-appearance: none;
   padding: 4px 0;
 }
+
+/* Rimuove le frecce native dei browser per input number */
 .spinnerInput::-webkit-outer-spin-button,
 .spinnerInput::-webkit-inner-spin-button { -webkit-appearance: none; }
 
 .spinnerUnit {
   font-size: 12px;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   font-weight: 600;
 }
 
 .spinnerHint {
   font-size: 10px;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   white-space: nowrap;
   padding-left: 2px;
 }
@@ -315,27 +300,21 @@
 .sizeBtn {
   padding: 4px 10px;
   border-radius: var(--radius-btn);
-  border: 1px solid var(--glass-border);
-  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--color-border);
+  background: none;
   color: var(--color-text-primary);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   flex-shrink: 0;
   -webkit-tap-highlight-color: transparent;
-  transition: background var(--t-snap);
 }
-.sizeBtn:active {
-  background: rgba(255,255,255,0.12);
-}
+.sizeBtn:active { opacity: 0.6; }
 
 .clearBtn {
-  border-color: rgba(212,0,0,0.38);
-  color: var(--color-accent);
+  border-color: var(--color-destructive);
+  color: var(--color-destructive);
   margin-left: 4px;
-}
-.clearBtn:active {
-  background: rgba(212,0,0,0.10);
 }
 
 /* Textarea */
@@ -344,28 +323,25 @@
   resize: none;
   border: none;
   outline: none;
-  background: var(--color-bg-app);
-  color: rgba(255,255,255,0.82);
+  background-color: var(--color-bg-app);
+  color: var(--color-text-primary);
   font-family: 'Roboto Mono', 'Courier New', monospace;
   font-size: 13px;
-  line-height: 1.75;
-  padding: 14px 16px;
+  line-height: 1.7;
+  padding: 12px 14px;
   -webkit-appearance: none;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  caret-color: var(--color-accent);
 }
 
-/* Marker reference */
+/* Riferimento marcatori */
 .markerRef {
   flex-shrink: 0;
-  padding: 5px 14px;
+  padding: 5px 12px;
   font-size: 10px;
-  color: var(--color-text-tertiary);
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid var(--glass-border);
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-surface);
+  border-top: 1px solid var(--color-border);
   overflow-x: auto;
   white-space: nowrap;
   -webkit-overflow-scrolling: touch;

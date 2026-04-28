@@ -2,18 +2,20 @@ import type { ParsedSong, ParsedSection, SectionType, Page, DisplayConfig } from
 import { calcPageFontBase } from './textMeasure'
 
 const HEADER_HEIGHT = 68
-const BODY_PADDING_V = 16   // 8px top + 8px bottom in Live.module.css
+const BODY_PADDING_V = 16
 const BODY_PADDING_H = 18
 const LINE_HEIGHT = 1.55
 const FONT_MIN = 22
 const FONT_MAX = 200
 const SECTION_GAP_PX = 12
-const SAFE_FACTOR = 0.90    // 10% margine sotto
+const SAFE_FACTOR = 0.90
+
+export { BODY_PADDING_H }
 
 interface FlatLine {
   text: string
   type: SectionType
-  breakBefore: boolean  // prima riga di una sezione parser → forza nuovo gruppo visivo
+  breakBefore: boolean
 }
 
 function calcAvailableHeight(display: DisplayConfig): number {
@@ -30,24 +32,25 @@ function calcPageHeight(sections: ParsedSection[], fontSize: number): number {
   return lineCount * fontSize * LINE_HEIGHT + gapsHeight
 }
 
+// Binary search: trova il font più grande in [FONT_MIN, startFont] che sta nella safeH
 function getRenderFont(sections: ParsedSection[], display: DisplayConfig): number | null {
   const safeH  = calcAvailableHeight(display)
   const availW = calcAvailableWidth(display)
 
-  // Se il fitting orizzontale scende sotto FONT_MIN, clamp a FONT_MIN:
-  // le righe troppo lunghe vengono gestite da TextLine individualmente.
-  // L'unico motivo per restituire null è il mancato fit verticale.
-  let font = Math.max(calcPageFontBase(sections, FONT_MAX, availW), FONT_MIN)
+  const maxFont = Math.max(calcPageFontBase(sections, FONT_MAX, availW), FONT_MIN)
 
-  while (font >= FONT_MIN && calcPageHeight(sections, font) > safeH) {
-    font--
+  if (calcPageHeight(sections, FONT_MIN) > safeH) return null
+
+  let lo = FONT_MIN
+  let hi = maxFont
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2)
+    if (calcPageHeight(sections, mid) <= safeH) lo = mid
+    else hi = mid - 1
   }
-
-  if (font < FONT_MIN) return null
-  return font
+  return lo
 }
 
-/** Appiattisce tutte le sezioni in righe singole, mantenendo tipo e confine di sezione */
 function flattenSong(song: ParsedSong): FlatLine[] {
   return song.sections.flatMap((s) =>
     s.lines
@@ -56,57 +59,54 @@ function flattenSong(song: ParsedSong): FlatLine[] {
   )
 }
 
-/**
- * Raggruppa righe piatte in ParsedSection[].
- * Un nuovo gruppo inizia al cambio di tipo OPPURE quando breakBefore=true
- * (prima riga di una sezione parser originale) — preserva i gap tra blocchi dello stesso tipo.
- */
-function groupToSections(flatLines: FlatLine[]): ParsedSection[] {
-  const sections: ParsedSection[] = []
-  for (const fl of flatLines) {
-    const last = sections[sections.length - 1]
-    if (last && last.type === fl.type && !fl.breakBefore) {
-      last.lines.push(fl.text)
-    } else {
-      sections.push({ type: fl.type, lines: [fl.text] })
-    }
+// Aggiunge una riga a sections in modo incrementale — evita di ricostruire da zero
+function addLineToSections(sections: ParsedSection[], fl: FlatLine): ParsedSection[] {
+  const last = sections[sections.length - 1]
+  if (last && last.type === fl.type && !fl.breakBefore) {
+    return [...sections.slice(0, -1), { type: last.type, lines: [...last.lines, fl.text] }]
   }
-  return sections
+  return [...sections, { type: fl.type, lines: [fl.text] }]
 }
 
-/**
- * Greedy fill riga per riga:
- * Le sezioni possono essere spezzate tra pagine — ogni riga porta con sé il suo tipo
- * (verso/ritornello) per il colore. Le pagine si riempiono al massimo possibile.
- */
 export function paginateSong(song: ParsedSong, display: DisplayConfig): Page[] {
   const flatLines = flattenSong(song)
   if (flatLines.length === 0) return [{ sections: [], fontSize: FONT_MIN, firstSectionContinues: false }]
 
-  const pages: FlatLine[][] = []
-  let current: FlatLine[] = []
+  // Greedy fill incrementale: mantiene sections aggiornate senza ricostruirle ogni iterazione.
+  // Font e sections vengono salvati al momento del push → eliminata la seconda chiamata
+  // a getRenderFont nella fase di mapping finale.
+  const pages: Array<{ lines: FlatLine[]; sections: ParsedSection[]; font: number }> = []
+  let currentLines: FlatLine[] = []
+  let currentSections: ParsedSection[] = []
+  let currentFont = FONT_MIN
 
   for (const fl of flatLines) {
-    const candidate = [...current, fl]
-    const renderFont = getRenderFont(groupToSections(candidate), display)
+    const candidateSections = addLineToSections(currentSections, fl)
+    const renderFont = getRenderFont(candidateSections, display)
 
     if (renderFont !== null) {
-      current = candidate
+      currentLines = [...currentLines, fl]
+      currentSections = candidateSections
+      currentFont = renderFont
     } else {
-      if (current.length > 0) pages.push(current)
-      current = [fl]
+      if (currentLines.length > 0) {
+        pages.push({ lines: currentLines, sections: currentSections, font: currentFont })
+      }
+      currentLines = [fl]
+      currentSections = [{ type: fl.type, lines: [fl.text] }]
+      currentFont = getRenderFont(currentSections, display) ?? FONT_MIN
     }
   }
 
-  if (current.length > 0) pages.push(current)
-  if (pages.length === 0) pages.push([])
+  if (currentLines.length > 0) {
+    pages.push({ lines: currentLines, sections: currentSections, font: currentFont })
+  }
 
-  return pages.map((lines) => {
-    const sections = groupToSections(lines)
-    return {
-      sections,
-      fontSize: getRenderFont(sections, display) ?? FONT_MIN,
-      firstSectionContinues: lines.length > 0 && !lines[0].breakBefore,
-    }
-  })
+  if (pages.length === 0) return [{ sections: [], fontSize: FONT_MIN, firstSectionContinues: false }]
+
+  return pages.map(({ lines, sections, font }) => ({
+    sections,
+    fontSize: font,
+    firstSectionContinues: lines.length > 0 && !lines[0].breakBefore,
+  }))
 }

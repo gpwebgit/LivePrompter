@@ -14,18 +14,18 @@ export function useSettings() {
     })
   }, [])
 
-  const updateColors = useCallback(
-    async (colors: ColorsConfig): Promise<void> => {
-      const next: Settings = { ...settings, colors }
-      setSettings(next)
-      await putSettings(next)
-    },
-    [settings],
-  )
+  // Stabile ([] deps): costruisce Settings senza catturare settings nella closure
+  const updateColors = useCallback(async (colors: ColorsConfig): Promise<void> => {
+    const next: Settings = { id: 'config', colors }
+    setSettings(next)
+    await putSettings(next)
+  }, [])
 
   const resetColors = useCallback(async (): Promise<void> => {
-    await updateColors(DEFAULT_SETTINGS.colors)
-  }, [updateColors])
+    const next: Settings = { id: 'config', colors: DEFAULT_SETTINGS.colors }
+    setSettings(next)
+    await putSettings(next)
+  }, [])
 
   return { settings, loading, updateColors, resetColors }
 }

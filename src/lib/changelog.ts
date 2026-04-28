@@ -6,6 +6,36 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.3.3',
+    date: '27 aprile 2026',
+    changes: [
+      'Paginator O(n²)→O(n log n): sections aggiornate in modo incrementale + binary search per il font size (era scansione lineare)',
+      'TextLine memoizzato con React.memo: il tick del clock ogni 10s non ri-renderizza più tutto il testo',
+      'Regex in textMeasure compilate una sola volta a livello di modulo (non ad ogni chiamata)',
+      'Paginator: font salvato durante il greedy-fill, eliminata la seconda chiamata a getRenderFont nel mapping finale',
+      'useSettings: updateColors e resetColors ora stabili (rimosse deps obsolete dalla closure)',
+      'BODY_PADDING_H deduplicato: unica costante esportata dal paginator, Live.tsx la importa',
+    ],
+  },
+  {
+    version: '1.3.1',
+    date: '27 aprile 2026',
+    changes: [
+      'Home: tutte le card scaletta ora identiche — nessuna card evidenziata, AVVIA sempre rosso pieno con glow',
+      'Home: paginazione reale a 5 scalette per pagina — i dots appaiono solo quando ci sono più di 5 scalette, cliccabili e navigabili con swipe orizzontale',
+    ],
+  },
+  {
+    version: '1.3.0',
+    date: '27 aprile 2026',
+    changes: [
+      'Nuovo design system: iPadOS Liquid Glass dark — superfici in vetro satinato, backdrop-filter blur, bordi traslucidi, raggi generosi (16–22px)',
+      'Header, footer, modali, picker, toolbar e card ora usano il trattamento glass su sfondo #09090f',
+      'Bottoni aggiornati: primary con glow rosso, secondary con bordo rosso traslucido, destructive con glass neutro',
+      'Modalità Live invariata — nessun pixel toccato',
+    ],
+  },
+  {
     version: '1.2.4',
     date: '27 aprile 2026',
     changes: [

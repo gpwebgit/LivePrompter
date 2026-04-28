@@ -4,14 +4,11 @@ import { MdSearch } from 'react-icons/md'
 import TextLine from '../../components/TextLine/TextLine'
 import TestoAlVolo from '../../components/TestoAlVolo/TestoAlVolo'
 import { parseSong } from '../../lib/parser'
-import { paginateSong } from '../../lib/paginator'
-
+import { paginateSong, BODY_PADDING_H } from '../../lib/paginator'
 import { getSetlist, getSongs, getSettings } from '../../lib/db'
 import type { Page, ColorsConfig, Song } from '../../lib/types'
 import { DEFAULT_COLORS } from '../../lib/types'
 import styles from './Live.module.css'
-
-const BODY_PADDING_H = 18 // px, da Live.module.css
 
 function formatClock(date: Date): string {
   return date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', hour12: false })
