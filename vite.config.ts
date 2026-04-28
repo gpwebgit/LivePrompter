@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs'
 const { version } = JSON.parse(readFileSync('./package.json', 'utf-8')) as { version: string }
 
 export default defineConfig({
+  base: '/prompterlive/',
   define: {
     __APP_VERSION__: JSON.stringify(version),
   },
@@ -16,7 +17,7 @@ export default defineConfig({
       includeAssets: ['fonts/**', 'icons/**', 'logo.png'],
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        navigateFallback: 'index.html',
+        navigateFallback: '/prompterlive/index.html',
         navigateFallbackDenylist: [/^\/api/],
       },
       manifest: {
@@ -27,8 +28,8 @@ export default defineConfig({
         orientation: 'portrait',
         theme_color: '#121212',
         background_color: '#000000',
-        start_url: '/',
-        scope: '/',
+        start_url: '/prompterlive/',
+        scope: '/prompterlive/',
         icons: [
           {
             src: '/icons/icon-192.png',
