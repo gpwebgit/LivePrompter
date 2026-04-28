@@ -6,6 +6,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.3.4',
+    date: '28 aprile 2026',
+    changes: [
+      'Promemoria live: pulsante 🔔 in Home per creare messaggi con data e ora (max 160 caratteri) — al momento stabilito appare nell\'header della schermata Live senza toccare il testo della canzone, tap per chiudere',
+      'Libreria brani: non più a tutto schermo — boxed e centrata, max 640px. Barra di ricerca in cima per filtrare per titolo',
+      'IndexedDB aggiornato a version 2 con nuovo store "reminders" (migrazione automatica)',
+    ],
+  },
+  {
     version: '1.3.3',
     date: '27 aprile 2026',
     changes: [

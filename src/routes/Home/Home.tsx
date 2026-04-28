@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MdDeleteOutline, MdLibraryMusic, MdWarning, MdSearch, MdSettings } from 'react-icons/md'
+import { MdDeleteOutline, MdLibraryMusic, MdWarning, MdSearch, MdSettings, MdNotificationsNone } from 'react-icons/md'
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog'
 import TestoAlVolo from '../../components/TestoAlVolo/TestoAlVolo'
 import AppFooter from '../../components/AppFooter/AppFooter'
+import PromemoriaModal from '../../components/PromemoriaModal/PromemoriaModal'
 import { useSetlists } from '../../hooks/useSetlists'
 import { useSongs } from '../../hooks/useSongs'
 import { useSettings } from '../../hooks/useSettings'
@@ -65,6 +66,7 @@ export default function Home() {
   const { settings } = useSettings()
   const [deleteTarget, setDeleteTarget] = useState<Setlist | null>(null)
   const [alVoloOpen, setAlVoloOpen] = useState(false)
+  const [promemoriaOpen, setPromemoriaOpen] = useState(false)
   const [pageIdx, setPageIdx] = useState(0)
 
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -115,6 +117,9 @@ export default function Home() {
         <div className={styles.brandActions}>
           <button className={styles.headerIconBtn} onClick={() => setAlVoloOpen(true)} aria-label="Testo al volo">
             <MdSearch size={22} color="rgba(255,255,255,0.55)" />
+          </button>
+          <button className={styles.headerIconBtn} onClick={() => setPromemoriaOpen(true)} aria-label="Promemoria">
+            <MdNotificationsNone size={22} color="rgba(255,255,255,0.55)" />
           </button>
           <button className={styles.headerIconBtn} onClick={() => navigate('/impostazioni')} aria-label="Impostazioni">
             <MdSettings size={22} color="rgba(255,255,255,0.55)" />
@@ -211,6 +216,7 @@ export default function Home() {
         songs={songs}
         colors={settings.colors}
       />
+      <PromemoriaModal open={promemoriaOpen} onClose={() => setPromemoriaOpen(false)} />
       <AppFooter />
     </div>
   )

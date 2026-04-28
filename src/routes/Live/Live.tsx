@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { MdSearch } from 'react-icons/md'
+import { MdSearch, MdNotifications } from 'react-icons/md'
 import TextLine from '../../components/TextLine/TextLine'
 import TestoAlVolo from '../../components/TestoAlVolo/TestoAlVolo'
 import { parseSong } from '../../lib/parser'
 import { paginateSong, BODY_PADDING_H } from '../../lib/paginator'
-import { getSetlist, getSongs, getSettings } from '../../lib/db'
-import type { Page, ColorsConfig, Song } from '../../lib/types'
+import { getSetlist, getSongs, getSettings, getReminders, putReminder } from '../../lib/db'
+import type { Page, ColorsConfig, Song, Reminder } from '../../lib/types'
 import { DEFAULT_COLORS } from '../../lib/types'
 import styles from './Live.module.css'
 
@@ -37,6 +37,20 @@ export default function Live() {
   const [error, setError] = useState<string | null>(null)
   const [alVoloOpen, setAlVoloOpen] = useState(false)
   const [bodyWidth, setBodyWidth] = useState(() => window.innerWidth - BODY_PADDING_H * 2)
+  const [activeReminder, setActiveReminder] = useState<Reminder | null>(null)
+  const remindersRef = useRef<Reminder[]>([])
+  const reminderTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Auto-chiude l'alert dopo 3 minuti se non viene chiuso manualmente
+  useEffect(() => {
+    if (reminderTimerRef.current) clearTimeout(reminderTimerRef.current)
+    if (activeReminder) {
+      reminderTimerRef.current = setTimeout(() => setActiveReminder(null), 3 * 60 * 1000)
+    }
+    return () => {
+      if (reminderTimerRef.current) clearTimeout(reminderTimerRef.current)
+    }
+  }, [activeReminder])
 
   const songIdxRef = useRef(songIdx)
   const pageIdxRef = useRef(pageIdx)
@@ -75,6 +89,10 @@ export default function Live() {
       setAllSongsLibrary(allSongs)
       setAllPages(buildPages(orderedSongs))
       setColors(settings.colors)
+      // Carica reminder non ancora mostrati
+      const allReminders = await getReminders()
+      const pending = allReminders.filter((r) => !r.dismissed)
+      remindersRef.current = pending
       setLoading(false)
     }
 
@@ -105,9 +123,40 @@ export default function Live() {
     }
   }, [])
 
-  // Clock
+  // Clock + check reminder ogni 10s
   useEffect(() => {
-    const tick = () => setClock(formatClock(new Date()))
+    const pad = (n: number) => String(n).padStart(2, '0')
+
+    const checkReminders = (now: Date) => {
+      if (remindersRef.current.length === 0) return
+
+      // Costruisce data e ora LOCALE con getFullYear/Month/Date/Hours/Minutes
+      // Nessuna dipendenza da locale o da formatClock
+      const todayStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+      const timeStr  = `${pad(now.getHours())}:${pad(now.getMinutes())}`
+
+      const due = remindersRef.current.find((r) => {
+        const rDate = r.triggerAt.slice(0, 10)  // "YYYY-MM-DD"
+        const rTime = r.triggerAt.slice(11, 16) // "HH:MM"
+        if (rDate < todayStr) return true               // data passata → scatta sempre
+        if (rDate === todayStr) return rTime <= timeStr // oggi → scatta se l'ora è arrivata
+        return false
+      })
+
+      if (due) {
+        remindersRef.current = remindersRef.current.filter((r) => r.id !== due.id)
+        putReminder({ ...due, dismissed: true })
+        setActiveReminder(due)
+      }
+    }
+
+    const tick = () => {
+      const now = new Date()
+      setClock(formatClock(now))
+      checkReminders(now)
+    }
+
+    tick()
     const id = setInterval(tick, 10000)
     return () => clearInterval(id)
   }, [])
@@ -204,6 +253,20 @@ export default function Live() {
     )
   }
 
+  // Font dinamico per l'alert: riempie la riga senza andare a capo
+  // padding 18*2 + icona ~24 + close ~24 + gap 10*2 = ~104px riservati
+  const reminderFontSize = (() => {
+    if (!activeReminder) return 18
+    const avail = window.innerWidth - 104
+    const _c = document.createElement('canvas').getContext('2d')
+    if (!_c) return 18
+    for (let fs = 36; fs >= 12; fs--) {
+      _c.font = `700 ${fs}px Arial, sans-serif`
+      if (_c.measureText(activeReminder.message).width <= avail) return fs
+    }
+    return 12
+  })()
+
   const currentSong = songs[songIdx]
   const nextSong = songs[songIdx + 1]
   const currentPage = allPages[songIdx]?.[pageIdx]
@@ -226,7 +289,20 @@ export default function Live() {
         style={{ backgroundColor: colors.liveBg }}
         onContextMenu={(e) => e.preventDefault()}
       >
-        {/* Header */}
+        {/* Header — alert promemoria o header normale */}
+        {activeReminder ? (
+          <div
+            className={styles.reminderAlert}
+            style={{ backgroundColor: colors.alertBg }}
+            onClick={() => setActiveReminder(null)}
+            role="button"
+            aria-label="Tocca per chiudere il promemoria"
+          >
+            <MdNotifications size={22} color={colors.alertText} className={styles.reminderAlertIcon} />
+            <span className={styles.reminderAlertText} style={{ fontSize: reminderFontSize, color: colors.alertText }}>{activeReminder.message}</span>
+            <span className={styles.reminderAlertClose} style={{ color: colors.alertText }}>✕</span>
+          </div>
+        ) : (
         <div className={styles.header}>
           <span className={styles.songTitle} style={{ color: colors.liveTitle }}>
             {currentSong?.title?.toUpperCase() ?? ''}
@@ -256,6 +332,7 @@ export default function Live() {
             </button>
           </div>
         </div>
+        )}
 
         {/* Body */}
         <div

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { MdPlayArrow, MdDelete, MdEdit } from 'react-icons/md'
 import TextLine from '../TextLine/TextLine'
 import ConfirmDialog from '../ConfirmDialog/ConfirmDialog'
@@ -24,6 +24,8 @@ export default function LibraryModal({ open, onClose, songs, colors, onRemoveSon
   const [pages, setPages] = useState<Page[]>([])
   const [pageIdx, setPageIdx] = useState(0)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [query, setQuery] = useState('')
+  const searchRef = useRef<HTMLInputElement>(null)
 
   if (!open) return null
 
@@ -47,6 +49,7 @@ export default function LibraryModal({ open, onClose, songs, colors, onRemoveSon
   const handleClose = () => {
     setSubMode('list')
     setSelectedSong(null)
+    setQuery('')
     onClose()
   }
 
@@ -114,20 +117,44 @@ export default function LibraryModal({ open, onClose, songs, colors, onRemoveSon
   }
 
   // LIST MODE
+  const filtered = query.trim()
+    ? sorted.filter((s) => s.title.toLowerCase().includes(query.toLowerCase()))
+    : sorted
+
   return (
-    <div className={styles.overlay} style={{ backgroundColor: 'var(--color-bg-app)' }}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>Libreria brani</h2>
-        <button className={styles.closeBtn} onClick={handleClose} aria-label="Chiudi">
-          ✕
-        </button>
-      </div>
+    <div className={styles.backdrop} onClick={(e) => e.target === e.currentTarget && handleClose()}>
+      <div className={styles.box}>
+        <div className={styles.header}>
+          <h2 className={styles.title}>Libreria brani</h2>
+          <button className={styles.closeBtn} onClick={handleClose} aria-label="Chiudi">
+            ✕
+          </button>
+        </div>
+
+        {/* Barra di ricerca */}
+        <div className={styles.searchBar}>
+          <input
+            ref={searchRef}
+            className={styles.searchInput}
+            type="text"
+            placeholder="Cerca brano..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            autoComplete="off"
+            spellCheck={false}
+          />
+          {query && (
+            <button className={styles.searchClear} onClick={() => setQuery('')}>✕</button>
+          )}
+        </div>
 
       <div className={styles.list}>
-        {sorted.length === 0 ? (
-          <p className={styles.empty}>Nessun brano in libreria.</p>
+        {filtered.length === 0 ? (
+          <p className={styles.empty}>
+            {query ? `Nessun risultato per "${query}"` : 'Nessun brano in libreria.'}
+          </p>
         ) : (
-          sorted.map((song) => (
+          filtered.map((song) => (
             <div key={song.id} className={styles.row}>
               <span className={styles.songTitle}>{song.title}</span>
               <div className={styles.actions}>
@@ -170,6 +197,7 @@ export default function LibraryModal({ open, onClose, songs, colors, onRemoveSon
         onCancel={() => setConfirmDeleteId(null)}
         destructive
       />
+      </div>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MdArrowBack, MdOutlineLocalLibrary } from 'react-icons/md'
+import { MdArrowBack, MdOutlineLocalLibrary, MdNotifications } from 'react-icons/md'
 import AppHeader from '../../components/AppHeader/AppHeader'
 import AppFooter from '../../components/AppFooter/AppFooter'
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog'
@@ -26,6 +26,8 @@ const COLOR_FIELDS: ColorField[] = [
   { key: 'liveBarText', label: 'Testo barra fine testo' },
   { key: 'liveClockBg', label: 'Sfondo orologio' },
   { key: 'liveClockText', label: 'Testo orologio' },
+  { key: 'alertBg', label: 'Sfondo alert promemoria' },
+  { key: 'alertText', label: 'Testo alert promemoria' },
 ]
 
 export default function Impostazioni() {
@@ -199,6 +201,12 @@ export default function Impostazioni() {
           </div>
 
           <div className={styles.previewLabel}>Anteprima schermata live</div>
+          {/* Anteprima alert promemoria */}
+          <div className={styles.alertPreview} style={{ backgroundColor: settings.colors.alertBg }}>
+            <MdNotifications size={18} color={settings.colors.alertText} style={{ flexShrink: 0 }} />
+            <span className={styles.alertPreviewText} style={{ color: settings.colors.alertText }}>Auguri a Mario!</span>
+            <span className={styles.alertPreviewClose} style={{ color: settings.colors.alertText }}>✕</span>
+          </div>
           <div className={styles.livePreview} style={{ backgroundColor: settings.colors.liveBg }}>
             {/* Header */}
             <div className={styles.lpHeader}>

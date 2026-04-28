@@ -9,6 +9,43 @@
   touch-action: none;
 }
 
+/* Alert promemoria — sostituisce l'header, tap per chiudere */
+.reminderAlert {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  min-height: 68px;
+  /* background-color impostato inline da colors.alertBg */
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  overflow: visible;
+}
+
+.reminderAlertIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.reminderAlertText {
+  flex: 1;
+  font-family: Arial, sans-serif;
+  font-weight: 700;
+  /* color impostato inline da colors.alertText */
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: visible;
+  /* fontSize impostato inline dal calcolo dinamico */
+}
+
+.reminderAlertClose {
+  font-size: 16px;
+  /* color impostato inline (alertText + opacity 50%) */
+  flex-shrink: 0;
+}
+
 .header {
   flex-shrink: 0;
   display: flex;

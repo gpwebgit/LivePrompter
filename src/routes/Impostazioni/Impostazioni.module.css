@@ -305,3 +305,28 @@
 .iconBtn:active {
   background: rgba(255,255,255,0.12);
 }
+
+/* Anteprima alert promemoria */
+.alertPreview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.alertPreviewText {
+  flex: 1;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alertPreviewClose {
+  font-size: 13px;
+  flex-shrink: 0;
+}

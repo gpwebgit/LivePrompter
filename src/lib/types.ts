@@ -23,6 +23,8 @@ export interface ColorsConfig {
   liveBarText: string
   liveClockBg: string
   liveClockText: string
+  alertBg: string
+  alertText: string
 }
 
 // Usata solo dal paginator — non più nei Settings
@@ -64,6 +66,15 @@ export const DEFAULT_COLORS: ColorsConfig = {
   liveBarText: '#ffffff',
   liveClockBg: '#d40000',
   liveClockText: '#ffffff',
+  alertBg: '#ec8a55',
+  alertText: '#000000',
+}
+
+export interface Reminder {
+  id: string
+  message: string   // max 160 chars
+  triggerAt: string // ISO string (datetime-local value)
+  dismissed: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
